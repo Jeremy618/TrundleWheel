@@ -1,0 +1,32 @@
+Memo Cordova
+
+Créer l'appli:
+	cordova create nom_du_repertoire_de_projet io.cordova.nom_de_id nom_de_l_app
+	cordova create ChessOpeningsTraining io.cordova.ChessOpeningsTraining ChessOpeningsTraining
+	
+
+Pour modifier l'app, il faut modifier les fichiers qui s'appellent index dans: 
+	"C:\Users\jerem\Documents\BrowserApp\www"
+
+Build l'application: 
+-Aller dans le bon répertoire
+	cd C:\Users\jerem\Documents\BrowserApp
+
+-Tapper:
+	cordova build
+Lancer l'appli:
+	cordova run browser
+ ou
+	cordova run android
+ ou copier, coller l'apk sur le tel
+
+
+Changer le nom et l'id d'une app (marche paaaas)
+-> changer l'ancien nom par le nouveau dans les fichiers:
+	config.xml
+	MainActivity.java dans platforms/android/app/src/main/java
+
+Supprimer un projet
+	cordova platform remove android
+	cordova platform rm cordova
+	rmdir /s /q C:\Users\jerem\Documents\Nom_de_lapp
