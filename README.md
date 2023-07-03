@@ -1,8 +1,10 @@
-# TrundleWheel
+# Walked distance dataset
 
-RedSwitchBLE contains the code that is in the ESP32.
-It allows to count the distance walked by the person by detecting the magnetic sensor on the Trundle Wheel.
-It sends the distance via Bluetooth Low Energy to the Trundle Wheel app on a phone.
+This repository contains data of walking activities gathered by sensors embedded in commercial mobile phones
+together with a meter-by-meter walked distance reference gathered through a sensorised trundle wheel.
 
-TrundleWheelApp contains the application code.
-It receives data from the ESP32 and displays it on the screen.
+Repository structure:
+
+- Data: contains sensors data from walk activities
+- RedSwitchBLE contains code for the sensorised trundle wheel. The code uses the Arduino IDE and runs on a ESP32. It allows to count the distance walked by the person by detecting the presence of a magnet on one of the spokes of the trundle wheel. The distance (1 meter per detection) is sent via Bluetooth Low Energy in a custom service and characteristic.
+- TrundleWheelApp contains the mobile phone app code to gather the sensors data, including the reference data from the trundle wheel. The app uses the Apache cordova framework.
