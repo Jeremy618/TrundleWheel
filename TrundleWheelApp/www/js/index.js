@@ -21,54 +21,74 @@
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 document.addEventListener('deviceready', onDeviceReady, false);
 
+const deviceId = '24:6F:28:7B:DE:A2'; // ID of the target BLE device
+const serviceUuid = '4fafc201-1fb5-459e-8fcc-c5c9c331914b'; // UUID of the BLE service
+const characteristicUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // UUID of the BLE characteristic
+
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
 
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     document.getElementById('deviceready').classList.add('ready');
 
-    var deviceId = '24:6F:28:7B:DE:A2'; // ID of the target BLE device
-    var serviceUuid = '4fafc201-1fb5-459e-8fcc-c5c9c331914b'; // UUID of the BLE service
-    var characteristicUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // UUID of the BLE characteristic
-
     var distance = 0;
-    // Update the content of the data container element with the received data
     var dataContainer = document.getElementById('dataContainer');
     dataContainer.textContent = distance;
 
-    // Scan for BLE devices
-    ble.scan([], 5, function(device) {
-        console.log('Device found: ' + JSON.stringify(device));
-        // Do something with the found device
-    }, function(error) {
-        console.log('BLE scan error: ' + error);
+    var isConnected = false; // True if the phone is connected to the ESP32
+    var connectionInfo = document.getElementById('connectionInfo');
+    connectionInfo.textContent = "not connected to ESP32";
+
+    //__________________________________________buttons__________________________________
+    var startButton = document.getElementById('startButton');
+    startButton.addEventListener('click', function() {
+        console.log("startButton");
+        distance = 0;
+        dataContainer.textContent = distance;
+    });
+    var endButton = document.getElementById('endButton');
+    endButton.addEventListener('click', function() {
+        console.log("endButton");
     });
 
-    // Connect to a BLE device
+    var connectButton = document.getElementById('connectButton');
+    connectButton.addEventListener('click', async function() {
+        console.log("connectButton");
+        if(!isConnected) ESP32Connection();
+    });
+
+}
+
+// Try to connect to the ESP32 device
+function ESP32Connection(){
+    console.log('Connecting to ESP32');
+    connectionInfo.textContent = 'Connecting to ESP32';
     ble.connect(deviceId, function(device) {
         console.log('Connected to device: ' + JSON.stringify(device));
-        var isConnected = document.getElementById('isConnected');
-        isConnected.textContent = 'Connected to ESP32';
-        // Start receiving notifications from a BLE characteristic
-        ble.startNotification(
-            deviceId, // ID of the BLE device
-            serviceUuid, // UUID of the BLE service
-            characteristicUuid, // UUID of the BLE characteristic
-            function(data) {
-                var dataArray = new Uint8Array(data);
-                distance = (dataArray[3] << 24) | (dataArray[2] << 16) | (dataArray[1] << 8) | dataArray[0];
-                console.log('distance= '+distance);
-                dataContainer.textContent = distance;
-            },
-            function(error) {
-                console.log('BLE notification error: ' + error);
-            }
-        );
-
+        connectionInfo.textContent = 'Connected to ESP32';
+        ESP32Notification();
+        isConnected = true;
     }, function(error) {
         console.log('BLE connection error: ' + error);
-        isConnected.textContent = 'Not connected to ESP32';
+        connectionInfo.textContent = 'Not connected to ESP32';
+        isConnected = false;
     });
+}
 
-
+// Start receiving notifications from a BLE characteristic
+function ESP32Notification(){
+    ble.startNotification(
+        deviceId, // ID of the BLE device
+        serviceUuid, // UUID of the BLE service
+        characteristicUuid, // UUID of the BLE characteristic
+        function(data) {
+            var dataArray = new Uint8Array(data);
+            distance = (dataArray[3] << 24) | (dataArray[2] << 16) | (dataArray[1] << 8) | dataArray[0];
+            console.log('distance= ' + distance);
+            dataContainer.textContent = distance;
+        },
+        function(error) {
+            console.log('BLE notification error: ' + error);
+        }
+    );
 }

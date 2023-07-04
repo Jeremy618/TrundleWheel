@@ -64,13 +64,36 @@ body {
 .info {
     position:absolute;             /* position in the center of the screen */
     left:50%;
-    top:65%;
+    top:50%;
     height:50px;                   /* text area height */
     width:225px;                   /* text area width */
     text-align:center;
     padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
     margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
                                    /* offset horizontal: half of text area width */
+}
+
+.button-container{
+    position: relative;
+    top: 70%;
+    margin:0px 10px 0px 10px;
+    height: 25%;
+    display: grid;
+    grid-row-gap: 6px;
+    grid-column-gap: 4px;
+    grid-template-rows: 2fr 1fr;
+}
+.startButton{
+    grid-column: span 1;
+    font-size: 25px;
+}
+.endButton{
+    grid-column: span 1;
+    font-size: 25px;
+}
+.connectButton{
+    grid-column: span 2;
+    font-size: 20px;
 }
 
 h1 {
@@ -129,3 +152,4 @@ h2 {
         background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
     }
 }
+

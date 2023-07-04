@@ -34,16 +34,20 @@
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <meta name="color-scheme" content="light dark">
         <link rel="stylesheet" href="css/index.css">
-        <title>Hello World</title>
+        <title>Trundle Wheel</title>
     </head>
     <body>
         <div id="deviceready"class="app">
             <h1>Distance = </h1>
             <h2 id="dataContainer"></h2>
         </div>
-        <div id="isConnected" class="info"></div>
+        <div id="connectionInfo" class="info"></div>
 
-
+        <div class="button-container">
+            <button id="startButton" class="startButton">Start</button>
+            <button id="endButton" class="endButton">End</button>
+            <button id="connectButton" class="connectButton">Connect to ESP32 device</button>
+        </div>
 
 
 <!--        <div class="app">-->
