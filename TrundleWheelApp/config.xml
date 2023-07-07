@@ -11,4 +11,8 @@
     <!-- enable BLE plugin -->
     <plugin name="cordova-plugin-ble-central" spec="^1.2.5" />
     <preference name="cordova-plugin-ble-central" />
+
+    <access origin="cdvfile://*" />
+
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
 </widget>
