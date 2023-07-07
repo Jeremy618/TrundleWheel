@@ -29,6 +29,9 @@ const characteristicUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // UUID of th
 
 const TMP_FILENAME = 'walkDatas.txt';
 let logger;
+var isConnected = false; // True if the phone is connected to the ESP32
+var isWalking = false; // True if the person has started walking
+var distance = 5;
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
@@ -36,35 +39,29 @@ function onDeviceReady() {
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     document.getElementById('deviceready').classList.add('ready');
 
-    console.log(cordova.file);
-
-    var distance = 0;
     var dataContainer = document.getElementById('dataContainer');
     dataContainer.textContent = distance;
-    var isConnected = false; // True if the phone is connected to the ESP32
     var connectionInfo = document.getElementById('connectionInfo');
     connectionInfo.textContent = "not connected to ESP32";
-    var isWalking = false;
 
     //__________________________________________buttons__________________________________
     var startButton = document.getElementById('startButton'); // start_button
     startButton.addEventListener('click', function() {
         console.log("startButton");
-        if (isWalking == false){
-            console.log("start to walk");
+        if ((isWalking == false) && (isConnected == true)){
             distance = 0;
             dataContainer.textContent = distance;
-            isWalking = true;
             start();
+            isWalking = true;
         }
     });
     var endButton = document.getElementById('endButton'); // end_button
     endButton.addEventListener('click', function() {
         console.log("endButton");
         if(isWalking == true){
-            isWalking = false;
             end();
             console.log("walk finished");
+            isWalking = false;
         }
     });
 
@@ -99,10 +96,13 @@ function ESP32Notification(){
         serviceUuid, // UUID of the BLE service
         characteristicUuid, // UUID of the BLE characteristic
         function(data) {
-            var dataArray = new Uint8Array(data);
-            distance = (dataArray[3] << 24) | (dataArray[2] << 16) | (dataArray[1] << 8) | dataArray[0];
-            console.log('distance= ' + distance);
-            dataContainer.textContent = distance;
+            if (isWalking){
+                var dataArray = new Uint8Array(data);
+                distance = (dataArray[3] << 24) | (dataArray[2] << 16) | (dataArray[1] << 8) | dataArray[0];
+                dataContainer.textContent = distance;
+                console.log('distance= ' + distance);
+                logger.log(distance);
+            }
         },
         function(error) {
             console.log('BLE notification error: ' + error);
@@ -111,10 +111,11 @@ function ESP32Notification(){
 }
 
 async function start(){
+    console.log("start to walk");
+    // create or open a log
     try {
         logger = await files.createLog(TMP_FILENAME);
-        let filePath = await files.getFilePath(TMP_FILENAME);
-        console.log(filePath);
+        // console.log(await files.getFilePath(TMP_FILENAME));
         // save file in the path: "Ce PC\Redmi Note 9 Pro\Espace de stockage interne partagé\Android\data\io.cordova.hellocordova\files"
     } catch (e) {
         console.error(e);
@@ -123,10 +124,6 @@ async function start(){
 }
 
 async function end(){
-    try {
-        logger = await files.createLog(TMP_FILENAME);
-    } catch (e) {
-        console.error(e);
-    }
     logger.log('end');
 }
+
