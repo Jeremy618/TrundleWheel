@@ -42,9 +42,16 @@ export default {
   async openFile(filename, forcecreate) {
     return new Promise((resolve, reject) => {
         let localDir = cordova.file.cacheDirectory
-        if (window.cordova.platformId == 'android') localDir = window.cordova.file.externalDataDirectory
-        else localDir = window.cordova.file.documentsDirectory
+//        if (window.cordova.platformId == 'android') localDir = window.cordova.file.externalDataDirectory
+//        else localDir = window.cordova.file.documentsDirectory
 
+        if (isIOS()){
+          //console.log("IOS")
+          localDir = window.cordova.file.documentsDirectory
+        }else{
+          //console.log("Android")
+          localDir = window.cordova.file.externalDataDirectory
+        }
         window.resolveLocalFileSystemURL(localDir, function (dirEntry) {
            console.log('file system opened')
            dirEntry.getFile(filename, { create: forcecreate, exclusive: false }, resolve, reject)
@@ -181,5 +188,16 @@ export default {
     let file = await this.openFile(filename, false)
     return this.deleteFile(file)
   }
-
 }
+  let isIOS = function () {
+    return [
+      'iPad Simulator',
+      'iPhone Simulator',
+      'iPod Simulator',
+      'iPad',
+      'iPhone',
+      'iPod'
+    ].includes(navigator.platform)
+      // iPad on iOS 13 detection
+      || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+  }
