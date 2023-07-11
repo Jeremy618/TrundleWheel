@@ -18,6 +18,8 @@
  */
 
 import files from './files.js'
+import motion from './motion.js'
+import gps from './gps.js'
 
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
@@ -29,9 +31,8 @@ const characteristicUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // UUID of th
 
 const TMP_FILENAME = 'walkDatas.txt';
 let logger;
-var isConnected = true; // True if the phone is connected to the ESP32 <--------------------------------a remettre sur false
+var isConnected = false; // True if the phone is connected to the ESP32 <--------------------------------a remettre sur false
 var isWalking = false; // True if the person has started walking
-var isFileOpened = false; // True if the dataFile is successfully opened
 var distance = 5;
 
 function onDeviceReady() {
@@ -50,8 +51,8 @@ function onDeviceReady() {
     startButton.addEventListener('click', function() {
         console.log("startButton");
         if ((isWalking == false) && (isConnected == true)){
-            distance = 0;
-            dataContainer.textContent = distance;
+            // distance = 0;
+            // dataContainer.textContent = distance;
             start();
         }
     });
@@ -60,7 +61,6 @@ function onDeviceReady() {
         console.log("endButton");
         if(isWalking == true){
             end();
-            console.log("walk finished");
             isWalking = false;
         }
     });
@@ -96,8 +96,8 @@ function ESP32Notification(){
             var dataArray = new Uint8Array(data);
             distance = (dataArray[3] << 24) | (dataArray[2] << 16) | (dataArray[1] << 8) | dataArray[0];
             dataContainer.textContent = distance;
-            console.log('distance= ' + distance);
-            logger.log(distance);
+            console.log('D - distance ' + distance);
+            logger.log('D - distance ' + distance);
         }
     },
     function(error) {
@@ -105,25 +105,27 @@ function ESP32Notification(){
     });
 }
 
-async function write(data){
+// Send data to ESP32 (to reset the distance)
+async function ESP32write(data){
+    let encodedData = btoa(data);
     return new Promise((resolve, reject) => {
-        ble.write(deviceId, serviceUuid, characteristicUuid, data, resolve, reject);
+        ble.write(deviceId, serviceUuid, characteristicUuid, encodedData, resolve, reject);
     });
 }
 
 async function start(){
-    console.log("start to walk");
-
-    write(0) // reset distance in the ESP32
-      .then(() => {
+    
+    ESP32write(0) // reset distance in the ESP32
+    .then(async () => {
         console.log("data successfully sent to ESP32");
-        return files.createLog(TMP_FILENAME);
-      })
-      .then(() => { // dataFile successfully opened
+        return logger = await files.createLog(TMP_FILENAME);
+    })
+    .then(() => { // dataFile successfully opened
         console.log("dataFile successfully opened");
-        isFileOpened = true;
+        console.log("E - signal check start");
+        logger.log('E - signal check start');
         isWalking = true;
-        logger.log('start');
+        getDatas();
       })
       .catch((error) => {
         console.log("error sending data to ESP32: " + error);
@@ -134,6 +136,38 @@ async function start(){
 }
 
 async function end(){
-    if (isFileOpened)   logger.log('end');
+    motion.stopNotifications();
+    gps.stopNotifications();
+    // if (window.device) testReport.device = {
+    //     os: window.device.platform + ' ' + window.device.version,
+    //     model: window.device.manufacturer + ' ' + window.device.model
+    // }
+    // logger.log('E - test end ' + JSON.stringify(testReport))
+    logger.log('E - test end ');
+    console.log("E - test end ");
+}
+
+// get all the datas from phone sensors
+async function getDatas(){
+
+    // start getting GPS
+    gps.startNotifications((position) => {
+        logger.log('P - position ' + JSON.stringify(position))
+    }, (err) => {
+        logger.log('P - error ' + JSON.stringify(err))
+    })
+    // get permissions for motion
+    await motion.getPermission()
+    if (await motion.isAvailable()) {
+        // the start notifications
+        motion.startNotifications({}, (event) => {
+          let pre = ''
+          if (event.type == 'motion') pre = 'M - motion '
+          else if (event.type == 'orientation') pre = 'O - orientation '
+          delete event.type
+          logger.log(pre + JSON.stringify(event))
+        })
+    }
+
 }
 
