@@ -33,7 +33,7 @@ const TMP_FILENAME = 'walkDatas.txt';
 let logger;
 var isConnected = false; // True if the phone is connected to the ESP32 <--------------------------------a remettre sur false
 var isWalking = false; // True if the person has started walking
-var distance = 5;
+var distance = 0;
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
@@ -51,8 +51,8 @@ function onDeviceReady() {
     startButton.addEventListener('click', function() {
         console.log("startButton");
         if ((isWalking == false) && (isConnected == true)){
-            // distance = 0;
-            // dataContainer.textContent = distance;
+            distance = 0;
+            dataContainer.textContent = distance;
             start();
         }
     });
