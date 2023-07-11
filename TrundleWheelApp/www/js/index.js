@@ -20,6 +20,7 @@
 import files from './files.js'
 import motion from './motion.js'
 import gps from './gps.js'
+import stepcounter from './stepcounter.js'
 
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
@@ -29,11 +30,26 @@ const deviceId = '24:6F:28:7B:DE:A2'; // ID of the target BLE device
 const serviceUuid = '4fafc201-1fb5-459e-8fcc-c5c9c331914b'; // UUID of the BLE service
 const characteristicUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // UUID of the BLE characteristic
 
-const TMP_FILENAME = 'walkDatas.txt';
+const TMP_FILENAME = 'walkDatas_'+new Date().getTime()+'.txt';
 let logger;
 var isConnected = false; // True if the phone is connected to the ESP32 <--------------------------------a remettre sur false
 var isWalking = false; // True if the person has started walking
 var distance = 0;
+var timeStart = 0;
+var timeEnd = 0;
+
+// let testReport = {
+//     duration: this.duration,
+//     date: new Date(),
+//     distance: distance,
+//     steps: this.lastStep
+// }
+let testReport = {
+    duration: 0,
+    date: new Date(),
+    distance: 0,
+    steps: 0
+}
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
@@ -118,38 +134,42 @@ async function start(){
     ESP32write(0) // reset distance in the ESP32
     .then(async () => {
         console.log("data successfully sent to ESP32");
-        return logger = await files.createLog(TMP_FILENAME);
+        return logger = await files.createLog(TMP_FILENAME); // maybe problem with TMP_FILENAME
     })
     .then(() => { // dataFile successfully opened
         console.log("dataFile successfully opened");
         console.log("E - signal check start");
         logger.log('E - signal check start');
         isWalking = true;
+        timeStart = new Date().getTime();
         getDatas();
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         console.log("error sending data to ESP32: " + error);
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         console.log("error opening file: " + error);
-      });
+    });
 }
 
 async function end(){
     motion.stopNotifications();
     gps.stopNotifications();
-    // if (window.device) testReport.device = {
-    //     os: window.device.platform + ' ' + window.device.version,
-    //     model: window.device.manufacturer + ' ' + window.device.model
-    // }
-    // logger.log('E - test end ' + JSON.stringify(testReport))
-    logger.log('E - test end ');
+    stepcounter.stopNotifications()
+    timeEnd = new Date().getTime();
+    if (window.device) testReport.device = {
+        os: window.device.platform + ' ' + window.device.version,
+        model: window.device.manufacturer + ' ' + window.device.model
+    }
+    testReport.duration = (timeEnd-timeStart)/60000; // duration in minutes
+    testReport.distance = distance;
+    logger.log('E - test end ' + JSON.stringify(testReport))
     console.log("E - test end ");
 }
 
 // get all the datas from phone sensors
 async function getDatas(){
-
+    
     // start getting GPS
     gps.startNotifications((position) => {
         logger.log('P - position ' + JSON.stringify(position))
@@ -161,13 +181,21 @@ async function getDatas(){
     if (await motion.isAvailable()) {
         // the start notifications
         motion.startNotifications({}, (event) => {
-          let pre = ''
-          if (event.type == 'motion') pre = 'M - motion '
-          else if (event.type == 'orientation') pre = 'O - orientation '
-          delete event.type
-          logger.log(pre + JSON.stringify(event))
+            let pre = ''
+            if (event.type == 'motion') pre = 'M - motion '
+            else if (event.type == 'orientation') pre = 'O - orientation '
+            delete event.type
+            logger.log(pre + JSON.stringify(event))
         })
     }
-
+    // get permission for pedometer
+    await stepcounter.getPermission()
+    if (await stepcounter.isAvailable()) {
+        stepcounter.startNotifications({}, async (steps) => {
+            logger.log('S - steps ' + JSON.stringify(steps))
+            testReport.steps = steps.numberOfSteps;
+        })
+    }
+    
 }
 

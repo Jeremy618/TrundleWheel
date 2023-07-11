@@ -158,8 +158,8 @@ export default {
       */
       async log(line) {
         // add the line to the buffer
-        //this.buffer += new Date().toISOString() + ' - ' + line + '\n'
-        this.buffer += new Date().getTime() + ' - ' + line + '\n'
+        this.buffer += new Date().toISOString() + ' - ' + line + '\n'
+        // this.buffer += new Date().getTime() + ' - ' + line + '\n'
 
         return new Promise((resolve, reject) => {
           // if writing, return immediately
