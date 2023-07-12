@@ -18,6 +18,7 @@
     "cordova-plugin-ble-central": "^1.7.0",
     "cordova-plugin-device": "^2.1.0",
     "cordova-plugin-file": "^7.0.0",
+    "cordova-plugin-insomnia": "github:EddyVerbruggen/Insomnia-PhoneGap-Plugin",
     "cordova-plugin-pedometer": "github:dariosalvi78/cordova-plugin-pedometer"
   },
   "cordova": {
@@ -33,7 +34,8 @@
         "ANDROIDX_WEBKIT_VERSION": "1.4.0"
       },
       "cordova-plugin-device": {},
-      "cordova-plugin-pedometer": {}
+      "cordova-plugin-pedometer": {},
+      "cordova-plugin-insomnia": {}
     }
   },
   "dependencies": {

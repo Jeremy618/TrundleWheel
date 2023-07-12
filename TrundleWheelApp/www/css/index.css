@@ -25,7 +25,7 @@ body {
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
     background-color:#E4E4E4;
-    background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%);
+    /* background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%); */
     font-family: system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
     font-size:12px;
     height:100vh;
@@ -33,50 +33,65 @@ body {
     padding:0px;
     /* Padding to avoid the "unsafe" areas behind notches in the screen */
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-    text-transform:uppercase;
+    /* text-transform:uppercase; */
     width:100%;
+    background-color: #333333;
 }
 
-/* Portrait layout (default) */
-.app {
-    background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
-    position:absolute;             /* position in the center of the screen */
-    left:50%;
-    top:25%;
-    height:50px;                   /* text area height */
-    width:225px;                   /* text area width */
+.grid-container{
+    display: grid;
+    height:75%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 170px 1fr 3fr 2fr;
+}
+.logo{
+    background:url(../img/logo.png) no-repeat center top;
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    margin: 0px 0px 0px 20%;
+}
+#timer{
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    margin: 0px 15% 0px 15%;
+    align-self: center;
+    text-align: center;
+    font-size: 50px;
+    font-family: consolas;
+    /* background-color: #707070; */
+    border-radius: 20px;
+    border:3px solid;
+}
+.distance{
+    grid-column: 1 / -1;
+    grid-row: 3 / 4;
     text-align:center;
-    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
-    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
-                                   /* offset horizontal: half of text area width */
-}
+    align-self: end;
+    font-size: 40px;
+    font-family: consolas;
 
-/* Landscape layout (with min-width) */
-@media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
-    .app {
-        background-position:left center;
-        padding:75px 0px 75px 170px;  /* padding-top + padding-bottom + text area = image height */
-        margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
-                                      /* offset horizontal: half of image width and text area width */
-    }
 }
-
-.info {
-    position:absolute;             /* position in the center of the screen */
-    left:50%;
-    top:50%;
-    height:50px;                   /* text area height */
-    width:225px;                   /* text area width */
+#dataContainer {
+    grid-column: 1 / -1;
+    grid-row: 4 / 5;
     text-align:center;
-    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
-    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
-                                   /* offset horizontal: half of text area width */
+    align-self: start;
+    font-size: 100px;
+    font-family: consolas;
+}
+#connectionInfo {
+    grid-column: 1 / -1;
+    grid-row: 5 / 6;
+    text-align:center;
+    align-self: start;
+    font-size: 25px;
+    font-family: consolas;
 }
 
 .button-container{
     position: relative;
-    top: 70%;
-    margin:0px 10px 0px 10px;
+    /* top: 60%; */
+    margin:-15px 15px 0px 15px;
     height: 25%;
     display: grid;
     grid-row-gap: 6px;
@@ -86,32 +101,26 @@ body {
 .startButton{
     grid-column: span 1;
     font-size: 25px;
+    border:3px solid;
+    border-radius: 10px;
+    font-family: consolas;
+    background-color: #707070;
 }
 .endButton{
     grid-column: span 1;
     font-size: 25px;
+    border:3px solid;
+    border-radius: 10px;
+    font-family: consolas;
+    background-color: #707070;
 }
 .connectButton{
     grid-column: span 2;
     font-size: 20px;
-}
-
-h1 {
-    font-size:24px;
-    font-weight:normal;
-    margin:0px;
-    overflow:visible;
-    padding:0px;
-    text-align:center;
-}
-
-h2 {
-    font-size:100px;
-    font-weight:normal;
-    margin:0px;
-    overflow:visible;
-    padding:0px;
-    text-align:center;
+    border:3px solid;
+    border-radius: 10px;
+    font-family: consolas;
+    background-color: #707070;
 }
 
 .event {
@@ -149,7 +158,7 @@ h2 {
 
 @media screen and (prefers-color-scheme: dark) {
     body {
-        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
+        background-image:linear-gradient(to bottom, #268f80 0%, #1b5358 51%);
     }
 }
 

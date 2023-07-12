@@ -30,26 +30,32 @@ const deviceId = '24:6F:28:7B:DE:A2'; // ID of the target BLE device
 const serviceUuid = '4fafc201-1fb5-459e-8fcc-c5c9c331914b'; // UUID of the BLE service
 const characteristicUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // UUID of the BLE characteristic
 
-const TMP_FILENAME = 'walkDatas_'+new Date().getTime()+'.txt';
+let TMP_FILENAME = 'walkDatas';
 let logger;
 var isConnected = false; // True if the phone is connected to the ESP32 <--------------------------------a remettre sur false
 var isWalking = false; // True if the person has started walking
-var distance = 0;
-var timeStart = 0;
-var timeEnd = 0;
-
-// let testReport = {
-//     duration: this.duration,
-//     date: new Date(),
-//     distance: distance,
-//     steps: this.lastStep
-// }
-let testReport = {
+var distance = 0; // distance walked in meters
+var timeStart = 0; // start time of the walk
+var timeEnd = 0; // end time of the walk
+let testReport = { // report to log into the dataFile at the end
     duration: 0,
     date: new Date(),
     distance: 0,
     steps: 0
 }
+connectionInfo.textContent = "not connected to ESP32";
+
+// timer to display on the screen
+let startTime = 0; 
+let elapsedTime = 0; 
+// let currentTime = 0;
+let paused = true;
+let intervalId;
+let mins;
+let secs;
+// const timer = document.querySelector("timer");
+timer.textContent = "00:00";
+// var ele = docuement.getElementById('timer');
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
@@ -60,7 +66,6 @@ function onDeviceReady() {
     var dataContainer = document.getElementById('dataContainer');
     dataContainer.textContent = distance;
     var connectionInfo = document.getElementById('connectionInfo');
-    connectionInfo.textContent = "not connected to ESP32";
 
     //__________________________________________buttons__________________________________
     var startButton = document.getElementById('startButton'); // start_button
@@ -134,7 +139,7 @@ async function start(){
     ESP32write(0) // reset distance in the ESP32
     .then(async () => {
         console.log("data successfully sent to ESP32");
-        return logger = await files.createLog(TMP_FILENAME); // maybe problem with TMP_FILENAME
+        return logger = await files.createLog(TMP_FILENAME+'_'+Date.now()+'.txt'); // maybe problem with TMP_FILENAME
     })
     .then(() => { // dataFile successfully opened
         console.log("dataFile successfully opened");
@@ -142,6 +147,11 @@ async function start(){
         logger.log('E - signal check start');
         isWalking = true;
         timeStart = new Date().getTime();
+        startTimer();
+        // avoid screen going to sleep
+        if (window.plugins && window.plugins.insomnia) {
+            window.plugins.insomnia.keepAwake()
+        }
         getDatas();
     })
     .catch((error) => {
@@ -157,6 +167,10 @@ async function end(){
     gps.stopNotifications();
     stepcounter.stopNotifications()
     timeEnd = new Date().getTime();
+    pauseTimer();
+    if (window.plugins && window.plugins.insomnia) {
+        window.plugins.insomnia.allowSleepAgain()
+    }
     if (window.device) testReport.device = {
         os: window.device.platform + ' ' + window.device.version,
         model: window.device.manufacturer + ' ' + window.device.model
@@ -196,6 +210,40 @@ async function getDatas(){
             testReport.steps = steps.numberOfSteps;
         })
     }
+}
+
+function startTimer(){
+    if(paused){
+        // reset variables;
+        paused = false;
+        startTime = 0;
+        elapsedTime = 0;
+        mins = 0;
+        secs = 0;
+        startTime = Date.now() - elapsedTime;
+        intervalId = setInterval(updateTime, 1000);
+        timer.textContent = "00:00";
+    }
+}
+function updateTime(){
+    elapsedTime = Date.now() - startTime;
+
+    secs = Math.floor((elapsedTime / 1000) % 60);
+    mins = Math.floor((elapsedTime / (1000*60)) % 60);
+
+    secs = pad(secs);
+    mins = pad(mins);
     
+    timer.textContent = mins+':'+secs;
+}
+function pauseTimer(){
+    if(!paused){
+        paused = true;
+        elapsedTime = Date.now() - startTime;
+        clearInterval(intervalId);
+    }
+}
+function pad(unit){
+    return (("0")+unit).length > 2 ? unit:"0"+unit;
 }
 
