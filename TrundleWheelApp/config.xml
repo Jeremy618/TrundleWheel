@@ -8,6 +8,7 @@
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <icon src="res/icon.jpg" />
     <!-- enable BLE plugin -->
     <plugin name="cordova-plugin-ble-central" spec="^1.2.5" />
     <preference name="cordova-plugin-ble-central" />

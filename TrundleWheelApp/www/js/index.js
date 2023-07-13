@@ -43,7 +43,7 @@ let testReport = { // report to log into the dataFile at the end
     distance: 0,
     steps: 0
 }
-connectionInfo.textContent = "not connected to ESP32";
+connectionInfo.textContent = "Not connected to ESP32";
 
 // timer to display on the screen
 let startTime = 0; 

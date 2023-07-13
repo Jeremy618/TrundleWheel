@@ -25,7 +25,7 @@ body {
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
     background-color:#E4E4E4;
-    /* background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%); */
+    background-image:linear-gradient(to bottom, #268f80 0%, #1b5358 51%);
     font-family: system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
     font-size:12px;
     height:100vh;
@@ -45,10 +45,12 @@ body {
     grid-template-rows: 1fr 170px 1fr 3fr 2fr;
 }
 .logo{
-    background:url(../img/logo.png) no-repeat center top;
+    background:url(../img/trundle_wheel_sprite_2.png) no-repeat center top;
     grid-column: 1 / 2;
     grid-row: 2 / 3;
-    margin: 0px 0px 0px 20%;
+    margin: 0px 0px 0px 0%;
+    background-size: contain;
+    transform: scaleX(-1);
 }
 #timer{
     grid-column: 2 / 3;
